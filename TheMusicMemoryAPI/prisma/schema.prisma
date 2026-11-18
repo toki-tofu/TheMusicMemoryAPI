@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            Int         @id @default(autoincrement())
+  login         String      @unique
+  recoveryEmail String      @unique
+  password      String
+  albums        UserAlbum[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model ExternalAlbum {
+  albumId   String      @id
+  users     UserAlbum[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model UserAlbum {
+  userId    Int
+  albumId   String
+  rating    Int?
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  album     ExternalAlbum @relation(fields: [albumId], references: [albumId], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@id([userId, albumId])
+  @@index([albumId])
+}
